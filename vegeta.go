@@ -447,10 +447,13 @@ func AttackVegetaJob(job *VegetaJob, comment string) {
 	targeter := NewRandomVegetaTargeter(job)
 	for _, period := range job.Periods {
 		var metrics vegeta.Metrics
-		var rate = period.Rate
+		var rate = vegeta.Rate{
+			Freq: int(period.Rate),
+			Per:  1,
+		}
 		var duration = time.Duration(period.Duration) * time.Second
-		UpdateJobCurrentRate(job, rate)
-		for res := range attacker.Attack(targeter, rate, duration) {
+		UpdateJobCurrentRate(job, period.Rate)
+		for res := range attacker.Attack(targeter, rate, duration, job.Name) {
 			metrics.Add(res)
 		}
 		metrics.Close()
